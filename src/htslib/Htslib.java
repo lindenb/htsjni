@@ -40,7 +40,8 @@ public class Htslib {
     public static void init() throws IOException {
          if(Htslib.inited) return;
          Htslib.inited = true;
-         final Enumeration<URL> eu = Htslib.class.getClassLoader().getResources("htslib/libhtsbindings.so");
+         final String RSRC_NAME="htslib/libhtsbindings.so";
+         final Enumeration<URL> eu = Htslib.class.getClassLoader().getResources(RSRC_NAME);
          while (eu.hasMoreElements()) {
             final URL url = eu.nextElement();
             try(InputStream in= url.openStream()) {
@@ -56,24 +57,23 @@ public class Htslib {
                     os.flush();
                     os.close();
                     System.load(tmp.getAbsolutePath());
-                    break;
+                    return;
                     }
                 }
             }
+        throw new IOException("Resource not found: " + RSRC_NAME );
         }
 	//vcf header
 	public static native long hts_bcf_hdr_read(long fp);
 	public static native void hts_bcf_hdr_destroy(long header);
-	
-    /*
+
 
 	//bcf record
 	public static native long hts_bcf_init();
 	public static native void hts_bcf_destroy(long ptr);
-	public static native int hts_bcf_read1_core(long fp, long v);
+	public static native int hts_bcf_read(long fp,long header, long v);
 	public static native long hts_bcf_copy(long dst, long src);
 	public static native long hts_bcf_dup(long src);
-*/
 
 }
 

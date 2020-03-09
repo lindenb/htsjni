@@ -34,6 +34,16 @@ SOFTWARE.
 
 #include "bindings.h"
 
+#ifdef JNIEXPORT
+    #undef JNIEXPORT
+#endif
+#ifdef JNICALL
+    #undef JNICALL
+#endif
+
+
+#define JNIEXPORT
+#define JNICALL
 
 /*
 static void* safeMalloc(size_t size) {
@@ -54,6 +64,8 @@ static void* safeMalloc(size_t size) {
 
 
 #define METHOD(NAME) Java_htslib_Htslib_hts_##NAME 
+
+
 
 jstring JNICALL Java_htslib_Htslib_getVersion(JNIEnv *env, jclass clazz) {
     return (*env)->NewStringUTF(env,HTS_VERSION_TEXT);
@@ -90,4 +102,51 @@ void METHOD(1bcf_1hdr_1destroy)(JNIEnv *env, jclass c, jlong header) {
     if(header>0L) bcf_hdr_destroy((bcf_hdr_t*)header);
     }
 
+// BCF_T
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_init
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL METHOD(1bcf_1init)(JNIEnv *e, jclass c) {
+    return (jlong)bcf_init();
+    }
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_destroy
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL METHOD(1bcf_1destroy)(JNIEnv *e, jclass c, jlong b) {
+    if(b>0L) bcf_destroy((bcf1_t*)b);
+    }
+
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_read1_core
+ * Signature: (JJ)I
+ */
+JNIEXPORT jint JNICALL Java_htslib_Htslib_hts_1bcf_1read  (JNIEnv * e, jclass c, jlong fp, jlong header, jlong b) {
+return (jint)bcf_read((htsFile*)fp,(bcf_hdr_t*)header,(bcf1_t*)b);
+}
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_copy
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_htslib_Htslib_hts_1bcf_1copy  (JNIEnv *e, jclass c, jlong dest, jlong src) {
+return (jlong)bcf_copy((bcf1_t*)dest,(bcf1_t*)src);
+}
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_dup
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_htslib_Htslib_hts_1bcf_1dup (JNIEnv *e , jclass c , jlong b) {
+return b>0L?(jlong)bcf_dup((bcf1_t*)b):(jlong)0L;
+}
 

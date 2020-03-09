@@ -21,7 +21,7 @@ htslib.jar : src/htslib/Htslib.java htslib/libhts.a src/htslib/bindings.c
 	javah -cp tmp -o src/htslib/bindings.h -force htslib.Htslib
 	mkdir -p $(dir $@) 
 	$(CC) ${CFLAGS} -fPIC -shared  -o tmp/htslib/libhtsbindings.so  -Isrc src/htslib/bindings.c htslib/libhts.a  -lz -lm -lbz2 -llzma -lcurl
-	nm tmp/htslib/libhtsbindings.so
+	#nm tmp/htslib/libhtsbindings.so
 	jar cvf htslib.jar -C tmp .
 	rm -rf tmp
 

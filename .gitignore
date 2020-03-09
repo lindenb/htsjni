@@ -18,4 +18,3 @@ lib
 
 
 src/htslib/bindings.h
-htslib
