@@ -3,6 +3,7 @@ ifeq (${JAVA_HOME},)
 $(error $$JAVA_HOME is not defined)
 endif
 
+HTSOBJ=kfunc knetfile kstring bcf_sr_sort bgzf errmod faidx header hfile hfile_net hts  multipart probaln realn regidx region sam synced_bcf_reader vcf_sweep tbx textutils thread_pool vcf vcfutils cram/cram_codecs cram/cram_decode cram/cram_encode cram/cram_external cram/cram_index cram/cram_io cram/cram_samtools cram/cram_stats cram/mFILE cram/open_trace_file cram/pooled_alloc cram/rANS_static cram/string_alloc
 
 CFLAGS= -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -I htslib $(addprefix -I, $(sort $(dir $(shell find "${JAVA_HOME}" -type f -name "*.h"))))
 
@@ -19,7 +20,7 @@ htslib.jar : src/htslib/Htslib.java htslib/libhts.so src/htslib/bindings.c
 	javac -d tmp -cp . $<
 	javah -cp tmp -o tmp/bindings.h -force htslib.Htslib
 	mkdir -p $(dir $@) 
-	$(CC) ${CFLAGS} -fPIC -shared -Lhtslib -Wl,-rpath=htslib -o tmp/htslib/libhtsbindings.so  -Itmp src/htslib/bindings.c htslib/libhts.a
+	$(CC) ${CFLAGS} -fPIC -shared  -o tmp/htslib/libhtsbindings.so  -Itmp src/htslib/bindings.c $(addsuffix .o,$(addprefix htslib/,$(HTSOBJ)))
 	nm tmp/htslib/libhtsbindings.so
 	jar cvf htslib.jar -C tmp .
 	rm -rf tmp
@@ -33,6 +34,6 @@ htslib/Makefile:
 	touch -c $@
 
 clean:
-	rm -rf htslib
+	rm -rf htslib htslib.jar tmp
 
 
