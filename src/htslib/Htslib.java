@@ -33,9 +33,6 @@ public class Htslib {
     //
     public static native String getVersion();
 
-	// io
-	public static native long hts_hopen(final String filename,final String mode);
-	public static native void hts_hclose(long fp);
 	
     public static void init() throws IOException {
          if(Htslib.inited) return;
@@ -63,9 +60,20 @@ public class Htslib {
             }
         throw new IOException("Resource not found: " + RSRC_NAME );
         }
+   	//kstring
+   	public static native long hts_ks_new();
+   	public static native int hts_ks_len(long s);
+    public static native String hts_ks_str(long s);  
+    
+	// io
+	public static native long hts_hopen(final String filename,final String mode);
+	public static native void hts_hclose(long fp);
+
 	//vcf header
 	public static native long hts_bcf_hdr_read(long fp);
 	public static native void hts_bcf_hdr_destroy(long header);
+	public static native int hts_bcf_hdr_nsamples(long header);
+	public static native String[] hts_bcf_hdr_get_samples(long header);
 
 
 	//bcf record

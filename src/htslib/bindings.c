@@ -45,7 +45,7 @@ SOFTWARE.
 #define JNIEXPORT
 #define JNICALL
 
-/*
+
 static void* safeMalloc(size_t size) {
 	void* ptr = malloc(size);
 	if(ptr==NULL) {
@@ -54,7 +54,7 @@ static void* safeMalloc(size_t size) {
 		}
 	memset(ptr,0,size);
 	return ptr;
-	}*/
+	}
 
 #define C_VAR(S) _c_ ## S
 
@@ -64,10 +64,10 @@ static void* safeMalloc(size_t size) {
 
 
 #define METHOD(NAME) Java_htslib_Htslib_hts_##NAME 
+#define JNIPARAMS1 JNIEnv * env, jclass clazz
 
 
-
-jstring JNICALL Java_htslib_Htslib_getVersion(JNIEnv *env, jclass clazz) {
+jstring JNICALL Java_htslib_Htslib_getVersion(JNIPARAMS1) {
     return (*env)->NewStringUTF(env,HTS_VERSION_TEXT);
     }
 
@@ -89,6 +89,24 @@ void METHOD(1hclose) (JNIEnv* env, jclass c, jlong ptr) {
 	hts_close((htsFile*)ptr);
 	}
 
+// KSTRING
+JNIEXPORT jlong JNICALL Java_htslib_Htslib_hts_1ks_1new(JNIPARAMS1) {
+	kstring_t* ks = safeMalloc(sizeof(kstring_t));
+	ks_initialize(ks);
+	return (jlong)ks;
+	}
+
+JNIEXPORT jint JNICALL Java_htslib_Htslib_hts_1ks_1len  (JNIPARAMS1, jlong k) {
+	return (jint)ks_len((kstring_t*)k);
+}
+
+JNIEXPORT jstring JNICALL Java_htslib_Htslib_hts_1ks_1str(JNIPARAMS1, jlong s) {
+	kstring_t* ks = (kstring_t*)s;
+	char* ptr = ks_str(ks);
+	return ptr==NULL?NULL:(*env)->NewStringUTF(env,ptr);
+}
+
+
 
 // BCF HEADER
 
@@ -101,6 +119,38 @@ jlong METHOD(1bcf_1hdr_1read)(JNIEnv *env, jclass c, jlong fp) {
 void METHOD(1bcf_1hdr_1destroy)(JNIEnv *env, jclass c, jlong header) {
     if(header>0L) bcf_hdr_destroy((bcf_hdr_t*)header);
     }
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_hdr_nsamples
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_htslib_Htslib_hts_1bcf_1hdr_1nsamples(JNIPARAMS1, jlong header) {
+	return bcf_hdr_nsamples((bcf_hdr_t*)header);
+}
+
+/*
+ * Class:     htslib_Htslib
+ * Method:    hts_bcf_hdr_get_samples
+ * Signature: (J)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_htslib_Htslib_hts_1bcf_1hdr_1get_1samples(JNIPARAMS1, jlong header) {
+	bcf_hdr_t* h = (bcf_hdr_t*)header;
+	int nsamples = bcf_hdr_nsamples(h);
+	jsize i;
+	jobjectArray array= (jobjectArray)(*env)->NewObjectArray(
+			env,
+			(jsize)nsamples,
+			(*env)->FindClass(env,"java/lang/String"),
+			NULL
+			);
+    for(i=0;i< (jsize)nsamples;i++) {
+    	(*env)->SetObjectArrayElement(env,array,i,(*env)->NewStringUTF(env,h->samples[i]));
+    	}
+    return array;
+}
+
+
 
 // BCF_T
 
