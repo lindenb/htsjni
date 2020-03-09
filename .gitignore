@@ -15,3 +15,7 @@ bin
 lib
 .classpath
 .project
+
+
+src/htslib/bindings.h
+htslib

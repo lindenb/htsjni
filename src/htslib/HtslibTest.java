@@ -35,9 +35,22 @@ public class HtslibTest {
        LOG.info(fn);
     }
 
+    private void testVersion() throws Exception {
+       LOG.info(Htslib.getVersion());
+    }
+
+    private void testHeader() throws Exception {
+       long fid = Htslib.hts_hopen("htslib/test/tabix/vcf_file.bcf","r");
+       long header= Htslib.hts_bcf_hdr_read(fid);
+       Htslib.hts_bcf_hdr_destroy(header);
+       Htslib.hts_hclose(fid);
+    }
+
     private void run() throws Exception {
         Htslib.init();
         testIO("htslib/test/tabix/vcf_file.bcf");
+        testVersion();
+        testHeader();
     }
 
     public static void main(final String args[]) {

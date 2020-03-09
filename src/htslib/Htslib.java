@@ -30,6 +30,9 @@ import java.util.*;
 
 public class Htslib {
     private static boolean inited = false;
+    //
+    public static native String getVersion();
+
 	// io
 	public static native long hts_hopen(final String filename,final String mode);
 	public static native void hts_hclose(long fp);
@@ -58,11 +61,12 @@ public class Htslib {
                 }
             }
         }
-    /*
 	//vcf header
 	public static native long hts_bcf_hdr_read(long fp);
 	public static native void hts_bcf_hdr_destroy(long header);
 	
+    /*
+
 	//bcf record
 	public static native long hts_bcf_init();
 	public static native void hts_bcf_destroy(long ptr);

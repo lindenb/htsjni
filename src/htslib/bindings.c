@@ -30,7 +30,10 @@ SOFTWARE.
 #include <htslib/kstring.h>
 #include <htslib/vcf.h>
 #include <htslib/hts.h>
+#include "version.h"
+
 #include "bindings.h"
+
 
 /*
 static void* safeMalloc(size_t size) {
@@ -52,6 +55,12 @@ static void* safeMalloc(size_t size) {
 
 #define METHOD(NAME) Java_htslib_Htslib_hts_##NAME 
 
+jstring JNICALL Java_htslib_Htslib_getVersion(JNIEnv *env, jclass clazz) {
+    return (*env)->NewStringUTF(env,HTS_VERSION_TEXT);
+    }
+
+
+
 jlong METHOD(1hopen) (JNIEnv *env, jclass clazz, jstring filename, jstring mode) {
     htsFile* f;
 	STR_J2C(filename);
@@ -67,4 +76,18 @@ void METHOD(1hclose) (JNIEnv* env, jclass c, jlong ptr) {
 	if(ptr<=0L) return;
 	hts_close((htsFile*)ptr);
 	}
+
+
+// BCF HEADER
+
+jlong METHOD(1bcf_1hdr_1read)(JNIEnv *env, jclass c, jlong fp) {
+    if(fp==0L) return 0L;
+    return (jlong)bcf_hdr_read((htsFile*)fp);
+    }
+
+
+void METHOD(1bcf_1hdr_1destroy)(JNIEnv *env, jclass c, jlong header) {
+    if(header>0L) bcf_hdr_destroy((bcf_hdr_t*)header);
+    }
+
 
